@@ -28,7 +28,7 @@ def addTestCaseDecl (descr? : Option String) (declName : Name) (levelParams : Li
       }
     | .thm => pure <| .thmDecl {
         name := declName
-        levelParams := []
+        levelParams := levelParams
         type := typeExpr
         value := valueExpr
       }
@@ -44,8 +44,15 @@ def elabAndAddTestCaseDecl (descr? : Option (TSyntax ``plainDocComment)) (name :
     | `(declId| $n:ident .{ $[$ls:ident],* }) => pure (n.getId, ls.toList.map (·.getId))
     | _ => throwUnsupportedSyntax
   withLevelNames lparams do
-    let typeExpr ← instantiateMVars (← elabTerm type none)
-    let valueExpr ← instantiateMVars (← elabTerm value (some typeExpr))
+    let typeExpr ← elabTerm type none
+    let valueExpr ← elabTerm value (some typeExpr)
+    Term.synthesizeSyntheticMVarsNoPostponing
+    let typeExpr ← instantiateMVars typeExpr
+    if typeExpr.hasMVar then
+      throwError "Failed to elaborate type, has remaining metavariables:{indentD typeExpr}"
+    let valueExpr ← instantiateMVars valueExpr
+    if valueExpr.hasMVar then
+      throwError "Failed to elaborate value, has remaining metavariables:{indentD valueExpr}"
     addTestCaseDecl descrStr? declName lparams typeExpr valueExpr outcome declKind
 
 elab descr?:(plainDocComment)? "good_def " name:declId ":" type:term ":=" value:term : command => do
@@ -53,6 +60,12 @@ elab descr?:(plainDocComment)? "good_def " name:declId ":" type:term ":=" value:
 
 elab descr?:(plainDocComment)? "bad_def " name:declId ":" type:term ":=" value:term : command => do
   elabAndAddTestCaseDecl descr? name type value Outcome.bad ConstantKind.defn
+
+elab descr?:(plainDocComment)? "good_thm " name:declId ":" type:term ":=" value:term : command => do
+  elabAndAddTestCaseDecl descr? name type value Outcome.good ConstantKind.thm
+
+elab descr?:(plainDocComment)? "bad_thm " name:declId ":" type:term ":=" value:term : command => do
+  elabAndAddTestCaseDecl descr? name type value Outcome.bad ConstantKind.thm
 
 open TSyntax.Compat in -- due to plainDocComments vs. docComment
 def elabRawTestDecl (descr? : Option (TSyntax `Lean.Parser.Command.plainDocComment)) (decl : Term) (outcome : Outcome) : CommandElabM Unit := liftTermElabM do
