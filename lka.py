@@ -800,7 +800,7 @@ def create_test(test: dict, output_dir: Path) -> bool:
         print(f"  Running pre-build: {pre_build}")
         result = run_cmd(pre_build, cwd=work_dir, shell=True)
         if result.returncode != 0:
-            print(f"  Pre-build failed: {result.stderr}")
+            print(f"  Pre-build failed:\n{result.stdout}\n{result.stderr}")
             return False
 
     # Execute based on test type
