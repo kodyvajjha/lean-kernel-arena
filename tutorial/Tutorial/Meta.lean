@@ -73,6 +73,7 @@ def elabRawTestDecl (descr? : Option (TSyntax `Lean.Parser.Command.plainDocComme
   let descrStr? := descrStr?.map (·.trimAscii.copy)
   let expectedType := Lean.mkConst ``Lean.Declaration
   let declExpr ← elabTerm decl (some expectedType)
+  let declExpr ← instantiateMVars declExpr
   let decl ← Lean.Meta.MetaM.run' <| unsafe Meta.evalExpr (α := Lean.Declaration) expectedType declExpr
   addTestCaseDeclCore descrStr? decl outcome
 

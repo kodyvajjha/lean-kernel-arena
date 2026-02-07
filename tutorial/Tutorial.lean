@@ -94,28 +94,75 @@ good_def defEqLambda : ∀ (f : (Prop → Prop) → Prop) (g : (a : Prop → Pro
 
 /-! Let's build peano arithmetic -/
 
-def N := ∀ α, (α → α) → (α → α)
-def N.zero : N := fun α s z => z
-def N.succ : N → N := fun n α s z => s (n α s z)
+def PN := ∀ α, (α → α) → (α → α)
+def PN.zero : PN := fun α s z => z
+def PN.succ : PN → PN := fun n α s z => s (n α s z)
 
-def N.lit0 := N.zero
-def N.lit1 := N.succ N.lit0
-def N.lit2 := N.succ N.lit1
-def N.lit3 := N.succ N.lit2
-def N.lit4 := N.succ N.lit3
+def PN.lit0 := PN.zero
+def PN.lit1 := PN.succ PN.lit0
+def PN.lit2 := PN.succ PN.lit1
+def PN.lit3 := PN.succ PN.lit2
+def PN.lit4 := PN.succ PN.lit3
 
-def N.add : N → N → N := fun n m α s z => n α s (m α s z)
-def N.mul : N → N → N := fun n m α s z => n α (m α s) z
+def PN.add : PN → PN → PN := fun n m α s z => n α s (m α s z)
+def PN.mul : PN → PN → PN := fun n m α s z => n α (m α s) z
 
 
 /-- Peano arithmetic: 2 = 2 -/
-good_thm peano1.{u} : ∀ (t : N → Prop) (v : (n : N) → t n), t N.lit2.{u} :=
-  fun t v => v N.lit2.{u}
+good_thm peano1.{u} : ∀ (t : PN → Prop) (v : (n : PN) → t n), t PN.lit2.{u} :=
+  fun t v => v PN.lit2.{u}
 
 /-- Peano arithmetic: 1 + 1 = 2 -/
-good_thm peano2.{u} : ∀ (t : N → Prop) (v : (n : N) → t n), t N.lit2.{u} :=
-  fun t v => v (N.lit1.add N.lit1)
+good_thm peano2.{u} : ∀ (t : PN → Prop) (v : (n : PN) → t n), t PN.lit2.{u} :=
+  fun t v => v (PN.lit1.add PN.lit1)
 
 /-- Peano arithmetic: 2 * 2 = 4 -/
-good_thm peano3.{u} : ∀ (t : N → Prop) (v : (n : N) → t n), t N.lit4.{u} :=
-  fun t v => v (N.lit2.mul N.lit2)
+good_thm peano3.{u} : ∀ (t : PN → Prop) (v : (n : PN) → t n), t PN.lit4.{u} :=
+  fun t v => v (PN.lit2.mul PN.lit2)
+
+
+inductive N : Type where | zero : N | succ : N → N
+
+/-- A first simple but recursive inductive data type -/
+good_def natDef : Type := N
+
+good_thm natDefRec :
+    ∀ (motive : N → Prop) (zero : motive N.zero) (succ: ∀ n, motive n → motive (N.succ n)),
+    let r := @N.rec motive zero succ;
+    (r .zero = zero) ∧ (∀ n, r (.succ n) = succ n (r n)) := by
+  intros
+  constructor
+  · rfl
+  · intro; rfl
+
+/-
+Cannot get these past the kernel, even with `debug.skipKernelTC`.
+
+/-- An inductive type with a non-sort type -/
+bad_decl (.inductDecl
+  []
+  0
+  [{name := `inductBadType
+    type := .const `simpleLambda []
+    ctors := [{
+      name := `mk
+      type := .const `inductBadType []
+    }]
+  }]
+  false)
+
+
+/-- An inductive type with duplicate level parameters -/
+bad_decl (.inductDecl
+  [`u, `u]
+  0
+  [{name := `inductLevelParam
+    type := .sort 1
+    ctors := [{
+      name := `mk
+      type := .const `inductLevelParam [.param `u, .param `u]
+    }]
+  }]
+  false)
+
+-/
