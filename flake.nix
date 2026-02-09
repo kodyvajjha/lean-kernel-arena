@@ -9,11 +9,7 @@
       devShell.${system} = pkgs.stdenv.mkDerivation rec {
         name = "lean-kernel-arena";
         buildInputs = with pkgs; [
-          python3
-          python3Packages.jinja2
-          python3Packages.pyyaml
-          python3Packages.jsonschema
-          python3Packages.markdown
+          (python3.withPackages (p : with p; [ jinja2 pyyaml jsonschema markdown ]))
           elan
           rustc 
           cargo
