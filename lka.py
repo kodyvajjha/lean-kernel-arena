@@ -1251,9 +1251,6 @@ def cmd_run_checker(args: argparse.Namespace) -> int:
         print("No built tests found.")
         return 0
 
-    # Sort tests by line count for consistent processing order
-    tests = sort_tests_by_line_count(tests)
-
     results = []
     for checker in checkers:
         for test in tests:
@@ -1333,6 +1330,7 @@ def load_tests() -> list[dict]:
         except Exception as e:
             print(f"Warning: Could not read stats file {stats_file}: {e}")
 
+    tests.sort(key=lambda t: t["name"])
     return tests
 
 
