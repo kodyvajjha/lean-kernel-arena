@@ -74,6 +74,7 @@ def elabRawTestDecl (descr? : Option (TSyntax `Lean.Parser.Command.plainDocComme
   let descrStr? := descrStr?.map (·.trimAscii.copy)
   let expectedType := Lean.mkConst ``Lean.Declaration
   let declExpr ← elabTerm decl (some expectedType)
+  Term.synthesizeSyntheticMVarsNoPostponing
   let declExpr ← instantiateMVars declExpr
   let decl ← Lean.Meta.MetaM.run' <| unsafe Meta.evalExpr (α := Lean.Declaration) expectedType declExpr
   addTestCaseDeclCore descrStr? decl outcome
@@ -134,3 +135,23 @@ def elabUnchecked : TermElab := fun stx expectedType? => do
 end
 
 end Unchecked
+
+/-! Some expression builder helpers -/
+
+def arrow  (dom : Expr) (codom : Expr) (n := `x) : Expr :=
+  .forallE n dom codom .default
+
+def dummyRecInfo (indName : Lean.Name) : Lean.ConstantInfo :=
+  .recInfo {
+      name := indName ++ `rec
+      levelParams := []
+      type := .sort 0
+      all := [indName]
+      numParams := 0
+      numIndices := 0
+      numMotives := 0
+      numMinors := 0
+      rules := []
+      k := false
+      isUnsafe := false
+  }
