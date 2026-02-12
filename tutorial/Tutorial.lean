@@ -631,26 +631,44 @@ def prodRecEqns := @Prod.match.match_1.eq_1
 /-- Reduction behavior of `Prod.rec` -/
 good_consts #[``prodRecEqns]
 
-def N.id : N → N
-  | N.zero => N.zero
-  | N.succ n => N.succ (N.id n)
+-- We define this using the recursor directly, as structural recursion
+-- uses projections, which we do not want to expect at this point
 
-def nRecEqns := And.intro N.id.match_1.eq_1 N.id.match_1.eq_2
+noncomputable def N.add : N → N → N
+  := N.rec (fun m => m) (fun n ih m => (ih m).succ)
 
-def listRecEqns := And.intro @List.foldr_nil @List.foldr_cons
+/-- A proof relying on the reduction behavior of N.rec -/
+good_thm nRecReduction :
+  (∀ m, N.add N.zero m = m) ∧
+  (∀ n m, N.add (N.succ n) m = N.succ (N.add n m)) := by
+  unfold N.add;
+  constructor <;> intros <;> rfl
+
+
+noncomputable def myListApped {α : Type} (xs ys : List α) : List α :=
+  List.recOn xs ys (fun x xs ih => x :: ih)
 
 /-- Reduction behavior of `List.rec` -/
-good_consts #[``listRecEqns]
+good_thm listRecReduction : ∀ {α : Type} (xs ys : List α),
+  (myListApped [] ys = ys) ∧
+  (∀ x xs, myListApped (x :: xs) ys = x :: myListApped xs ys) := by
+  intros; unfold myListApped; constructor <;> intros <;> rfl
 
-def RBTree.id {α : Type} {c : Color} {n : N} : RBTree α c n → RBTree α c n
-  | .leaf => .leaf
-  | .red l a r => .red (RBTree.id l) a (RBTree.id r)
-  | .black l a r => .black (RBTree.id l) a (RBTree.id r)
-
-def rbTreeRecEqns := And.intro @RBTree.id.eq_1 (And.intro @RBTree.id.eq_2 @RBTree.id.eq_3)
+noncomputable def RBTree.id {α : Type} {c : Color} {n : N} (t :RBTree α c n) : RBTree α c n :=
+  RBTree.rec .leaf
+    (fun _t1 a _t2 ih1 ih2 => RBTree.red ih1 a ih2)
+    (fun _t1 a _t2 ih1 ih2 => RBTree.black ih1 a ih2)
+    t
 
 /-- Reduction behavior of `RBTree.rec` -/
-good_consts #[``rbTreeRecEqns]
+good_thm RBTree.id_spec : ∀ {α : Type} {c : Color} {n : N} (t : RBTree α c n), t.id = t := by
+  intro α c n t
+  induction t
+  · rfl
+  · dsimp [RBTree.id]
+    congr
+  · dsimp [RBTree.id]
+    congr
 
 -- TODO:
 -- * level constraints on constructors
