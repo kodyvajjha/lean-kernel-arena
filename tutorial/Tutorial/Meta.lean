@@ -101,6 +101,7 @@ def elabRawTestCIs (descr? : Option (TSyntax `Lean.Parser.Command.plainDocCommen
   let expectedType := mkApp (Lean.mkConst ``Array [0]) (Lean.mkConst ``Lean.ConstantInfo)
   let cisExpr ← elabTerm cis (some expectedType)
   let cisExpr ← instantiateMVars cisExpr
+  synthesizeSyntheticMVarsNoPostponing
   let cis ← Lean.Meta.MetaM.run' <| unsafe Meta.evalExpr (α := Array Lean.ConstantInfo) expectedType cisExpr
   addTestCaseCIsCore descrStr? cis outcome
 

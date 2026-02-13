@@ -670,9 +670,113 @@ good_thm RBTree.id_spec : ∀ {α : Type} {c : Color} {n : N} (t : RBTree α c n
   · dsimp [RBTree.id]
     congr
 
+/-! Projections -/
+
+/-- Typechecking simple projection functions -/
+good_consts #[``And.left, ``And.right]
+
+/-- Typechecking projection functions with parameters -/
+good_consts #[``Prod.fst, ``Prod.snd]
+
+/-- Typechecking projection functions  -/
+good_consts #[``PProd.fst, ``PProd.snd]
+
+/-- Typechecking dependnet projection functions  -/
+good_consts #[``PSigma.fst, ``PSigma.snd]
+
+/-- Out of range projection -/
+bad_raw_consts #[
+  .defnInfo {
+    name := `projOutOfRange
+    levelParams := []
+    type := arrow (.sort 0) <| arrow (.sort 0) <|
+      arrow (Lean.mkApp2 (Lean.mkConst `And []) (.bvar 1) (.bvar 0)) <| .bvar 2
+    value :=
+      .lam `x (binderInfo := .default) (.sort 0) <|
+      .lam `y (binderInfo := .default) (.sort 0) <|
+      .lam `z (binderInfo := .default) (Lean.mkApp2 (Lean.mkConst `And []) (.bvar 1) (.bvar 0)) <|
+      .proj `And 2 (.bvar 0)
+    hints := .opaque
+    safety := .safe
+  }
+]
+
+/-- Projection out something that is not a structure -/
+bad_raw_consts #[
+  .defnInfo {
+    name := `projNotStruct
+    levelParams := []
+    type := arrow (Lean.mkConst ``N) <| (Lean.mkConst ``N)
+    value :=
+      .lam `x (binderInfo := .default) (Lean.mkConst ``N) <|
+      .proj `N 0 (.bvar 0)
+    hints := .opaque
+    safety := .safe
+  }
+]
+
+inductive PropStructure : Prop where
+  | mk (aProof : True) (someData : N) (aSecondProof : True)
+    (someMoreData : N) (aProofAboutData : someMoreData = someMoreData)
+    (aFinalProof : True)
+
+meta def mkPropStructureTest (n : Lean.Name) (resType : Lean.Expr) (idx : Nat) : Array Lean.ConstantInfo :=
+  #[ .defnInfo {
+    name := n
+    levelParams := []
+    type := arrow (Lean.mkConst ``PropStructure) resType
+    value :=
+      .lam `x (binderInfo := .default) (Lean.mkConst ``PropStructure) <|
+      .proj ``PropStructure idx (.bvar 0)
+    hints := .opaque
+    safety := .safe
+  }]
+
+
+/-- Projecting out of a proposition
+
+The lean kernel allows projections out of propositions if they preceed
+all dependent data fields.
+-/
+good_raw_consts mkPropStructureTest `projProp1 (Lean.mkConst ``True) 0
+
+/-- Projecting out of a proposition
+
+The lean kernel disallows data projections out of propositional structures.
+-/
+bad_raw_consts mkPropStructureTest `projProp2 (Lean.mkConst ``N) 1
+
+/-- Projecting out of a proposition
+
+The lean kernel allows projections out of propositions if they preceed
+all dependent data fields. Non-dependent data fields are not relevant.
+-/
+good_raw_consts mkPropStructureTest `projProp3 (Lean.mkConst ``True) 2
+
+/-- Projecting out of a proposition
+
+The lean kernel disallows data projections out of propositional structures.
+-/
+bad_raw_consts mkPropStructureTest `projProp4 (Lean.mkConst ``N) 3
+
+/-- Projecting out of a proposition
+
+The lean kernel disallows proof projections out of propositional structures that depend on data.
+-/
+bad_raw_consts mkPropStructureTest `projProp5
+  (Lean.mkApp3 (Lean.mkConst ``Eq [0]) (Lean.mkConst ``N) (.proj ``PropStructure 3 (.bvar 0)) (.proj ``PropStructure 3 (.bvar 0))) 4
+
+/--
+Projecting out of a proposition.
+
+The lean kernel rejects any projections out of a propositoin that
+come after a dependent data field, even if that is not used by the the present projection.
+-/
+bad_raw_consts mkPropStructureTest `projProp6 (Lean.mkConst ``True) 5
+
+
 -- TODO:
 -- * reflexive inductives
--- * projections
 -- * eta for functions
 -- * eta for structures
 -- * rule k
