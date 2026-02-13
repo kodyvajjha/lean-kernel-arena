@@ -715,18 +715,18 @@ bad_raw_consts #[
   }
 ]
 
-inductive PropStructure : Prop where
-  | mk (aProof : True) (someData : N) (aSecondProof : True)
-    (someMoreData : N) (aProofAboutData : someMoreData = someMoreData)
-    (aFinalProof : True)
+inductive PropStructure.{u,v} : Prop where
+  | mk (aProof : PUnit.{u}) (someData : PUnit.{v}) (aSecondProof : PUnit.{u})
+    (someMoreData : PUnit.{v}) (aProofAboutData : someMoreData = someMoreData)
+    (aFinalProof : PUnit.{u})
 
 meta def mkPropStructureTest (n : Lean.Name) (resType : Lean.Expr) (idx : Nat) : Array Lean.ConstantInfo :=
   #[ .defnInfo {
     name := n
     levelParams := []
-    type := arrow (Lean.mkConst ``PropStructure) resType
+    type := arrow (Lean.mkConst ``PropStructure [0,1]) resType
     value :=
-      .lam `x (binderInfo := .default) (Lean.mkConst ``PropStructure) <|
+      .lam `x (binderInfo := .default) (Lean.mkConst ``PropStructure [0,1]) <|
       .proj ``PropStructure idx (.bvar 0)
     hints := .opaque
     safety := .safe
@@ -738,33 +738,33 @@ meta def mkPropStructureTest (n : Lean.Name) (resType : Lean.Expr) (idx : Nat) :
 The lean kernel allows projections out of propositions if they preceed
 all dependent data fields.
 -/
-good_raw_consts mkPropStructureTest `projProp1 (Lean.mkConst ``True) 0
+good_raw_consts mkPropStructureTest `projProp1 (Lean.mkConst ``PUnit [0]) 0
 
 /-- Projecting out of a proposition
 
 The lean kernel disallows data projections out of propositional structures.
 -/
-bad_raw_consts mkPropStructureTest `projProp2 (Lean.mkConst ``N) 1
+bad_raw_consts mkPropStructureTest `projProp2 (Lean.mkConst ``PUnit [1]) 1
 
 /-- Projecting out of a proposition
 
 The lean kernel allows projections out of propositions if they preceed
 all dependent data fields. Non-dependent data fields are not relevant.
 -/
-good_raw_consts mkPropStructureTest `projProp3 (Lean.mkConst ``True) 2
+good_raw_consts mkPropStructureTest `projProp3 (Lean.mkConst ``PUnit [0]) 2
 
 /-- Projecting out of a proposition
 
 The lean kernel disallows data projections out of propositional structures.
 -/
-bad_raw_consts mkPropStructureTest `projProp4 (Lean.mkConst ``N) 3
+bad_raw_consts mkPropStructureTest `projProp4 (Lean.mkConst ``PUnit [1]) 3
 
 /-- Projecting out of a proposition
 
 The lean kernel disallows proof projections out of propositional structures that depend on data.
 -/
 bad_raw_consts mkPropStructureTest `projProp5
-  (Lean.mkApp3 (Lean.mkConst ``Eq [0]) (Lean.mkConst ``N) (.proj ``PropStructure 3 (.bvar 0)) (.proj ``PropStructure 3 (.bvar 0))) 4
+  (Lean.mkApp3 (Lean.mkConst ``Eq [1]) (Lean.mkConst ``PUnit [1]) (.proj ``PropStructure 3 (.bvar 0)) (.proj ``PropStructure 3 (.bvar 0))) 4
 
 /--
 Projecting out of a proposition.
@@ -772,7 +772,7 @@ Projecting out of a proposition.
 The lean kernel rejects any projections out of a propositoin that
 come after a dependent data field, even if that is not used by the the present projection.
 -/
-bad_raw_consts mkPropStructureTest `projProp6 (Lean.mkConst ``True) 5
+bad_raw_consts mkPropStructureTest `projProp6 (Lean.mkConst ``PUnit [0]) 5
 
 
 -- TODO:
