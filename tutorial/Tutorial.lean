@@ -681,7 +681,7 @@ good_consts #[``Prod.fst, ``Prod.snd]
 /-- Typechecking projection functions  -/
 good_consts #[``PProd.fst, ``PProd.snd]
 
-/-- Typechecking dependnet projection functions  -/
+/-- Typechecking dependent projection functions  -/
 good_consts #[``PSigma.fst, ``PSigma.snd]
 
 /-- Out of range projection -/
@@ -825,6 +825,10 @@ bad_raw_consts
     hints := .opaque
     safety := .safe
   }]
+
+/-- Projection reductions -/
+good_def projRed : (Prod.mk true false).2 = false := rfl
+
 
 -- TODO:
 -- * reflexive inductives
