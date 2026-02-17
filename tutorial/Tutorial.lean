@@ -861,6 +861,13 @@ bad_thm ruleKbad : ∀ (h : true = false) (a : Bool),
   Eq.rec (motive := fun _ _ => Bool) a h = a :=
   fun _ a => unchecked Eq.refl a
 
+/--
+Rule k should not fire for `Acc`.
+-/
+bad_thm ruleKAcc.{u} : ∀ (α : Sort u) (p : α → α → Prop) (x : α) (h : Acc p x) (a : Bool),
+  Acc.rec (motive := fun _ _ => Bool) (fun _ _ _=> a) h = a :=
+  fun α p x h a => unchecked Eq.refl a
+
 /-- Type checking Nat literals -/
 good_decl (.defnDecl {
   name := `aNatLit
