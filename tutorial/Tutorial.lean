@@ -905,12 +905,16 @@ good_def unitEta2.{u} : ∀ (x y : PUnit.{u}), x = y := fun _ _ => rfl
 /-- Unit eta -/
 good_def unitEta3 : ∀ (x y : PUnit.{0}), x = y := fun _ _ => rfl
 
+/-- Structure eta -/
+good_def structEta.{u} : ∀ (α β : Type u) (x : α × β), x = ⟨x.1, x.2⟩ ∧ ⟨x.1, x.2⟩ = x:= fun _ _ _ => ⟨rfl, rfl⟩
+
 /--
 Corner case for function eta:
-Does a defeq between a partially applied constructor with rule k an a free
+Does a defeq between a partially applied recursor with rule k an a free
 variable trigger eta expansion?
 
-Taking the official kernel as the specification, the answer is no. See <https://github.com/leanprover/lean4/issues/12520> for a discussion.
+Taking the official kernel as the specification, the answer is no.
+See <https://github.com/leanprover/lean4/issues/12520> for a discussion.
 -/
 bad_def etaRuleK : ∀ (a : true = true → Bool),
   @Eq (true = true → Bool)
@@ -918,7 +922,20 @@ bad_def etaRuleK : ∀ (a : true = true → Bool),
     a :=
   fun a => unchecked Eq.refl a
 
+structure T where
+  val : Bool
+  proof : True
+
+/--
+Corner case for function eta:
+Does a defeq between a partially applied constructor trigger eta expansion?
+
+Taking the official kernel as the specification, the answer is no.
+See <https://github.com/leanprover/lean4/issues/12520> for a discussion.
+-/
+bad_def etaCtor :
+  ∀ (x : True → T) , (T.mk (x True.intro).val) = x := fun x => unchecked Eq.refl x
+
 -- TODO:
 -- * reflexive inductives
 -- * eta for functions
--- * eta for structures
