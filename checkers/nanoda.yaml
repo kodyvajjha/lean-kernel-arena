@@ -1,4 +1,4 @@
-version: "2747659"
+version: "e753956"
 description: |
   **Nanoda** - An alternative Lean 4 kernel implementation in Rust.
   
@@ -16,9 +16,9 @@ description: |
 
   The nanoda integration in the arena does not distinguish between a rejected proof and other forms
   of failure, so they are all repoted as “rejected”.
-url: https://github.com/nomeata/nanoda_lib/
-ref: joachim/pred_of_nat_succ
-rev: f97900ce3aa35eabfbcba11fcc3ec793f8f7663c
+url: https://github.com/ammkrn/nanoda_lib
+ref: master
+rev: e753956526411aa6ebebbb73d1a3b535a45f61aa
 build: |
   cargo build --release
   cat > config.json <<__END__
