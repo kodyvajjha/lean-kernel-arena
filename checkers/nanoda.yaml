@@ -1,4 +1,3 @@
-version: "e753956"
 description: |
   **Nanoda** - An alternative Lean 4 kernel implementation in Rust.
   

@@ -542,6 +542,25 @@ def load_yaml_files(directory: Path, schema_name: str) -> list[dict]:
     items = []
     if not directory.exists():
         return items
+
+    def _derive_checker_version(config: dict) -> str | None:
+        """Derive a checker version string.
+
+        If the checker YAML omits `version` but has both `ref` and `rev`, use
+        "<ref> (<last 7 of rev>)".
+        """
+        version = config.get("version")
+        if isinstance(version, str) and version.strip():
+            return version
+
+        ref = config.get("ref")
+        rev = config.get("rev")
+        if isinstance(ref, str) and ref.strip() and isinstance(rev, str) and rev.strip():
+            rev_short = rev.strip()[-7:]
+            return f"{ref.strip()} ({rev_short})"
+
+        return None
+
     # Sort files alphabetically to avoid dependency on filesystem order
     for file in sorted(directory.glob("*.yaml")):
         with open(file, "r") as f:
@@ -553,6 +572,13 @@ def load_yaml_files(directory: Path, schema_name: str) -> list[dict]:
             data["_file"] = file.name
             # Derive name from filename (without .yaml extension)
             data["name"] = file.stem
+
+            # Backwards-compatible default: derive checker version from ref+rev.
+            if schema_name == "checker" and not data.get("version"):
+                derived_version = _derive_checker_version(data)
+                if derived_version:
+                    data["version"] = derived_version
+
             items.append(data)
     return items
 

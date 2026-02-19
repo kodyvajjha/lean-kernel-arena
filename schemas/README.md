@@ -35,6 +35,7 @@ Validates checker configuration files in the `checkers/` directory.
 1. **Git repository checker** - Clone a repo and build/run checker
    - Required: `url`, `run`
    - Optional: `version`, `ref`, `rev`, `build`
+   - If `version` is omitted but both `ref` and `rev` are present, the arena will display the version as `ref (rev7)` where `rev7` is the last 7 characters of `rev`.
    
 2. **Local directory checker** - Use local directory source
    - Required: `dir`, `run`
@@ -52,7 +53,7 @@ Validates checker configuration files in the `checkers/` directory.
 - `ref`: Git branch or tag name
 - `rev`: Git commit hash (7-40 hex characters)
 - `dir`: Local directory path (relative to project root for tests, relative to `checkers/` for checkers)
-- `version`: Version identifier string
+- `version`: Version identifier string. If omitted for a checker and both `ref` and `rev` are present, the arena derives it as `ref (rev7)` where `rev7` is the last 7 characters of `rev`.
 
 ### Test-Specific Fields
 - `file`: Static file path relative to project root

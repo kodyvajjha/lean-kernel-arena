@@ -7,7 +7,7 @@
   "properties": {
     "version": {
       "type": "string",
-      "description": "Version identifier for the checker"
+      "description": "Version identifier for the checker. If omitted but both `ref` and `rev` are present, the arena will display `ref (rev7)` where `rev7` is the last 7 characters of `rev`."
     },
     "description": {
       "type": "string",
