@@ -49,6 +49,14 @@ bad_decl (.defnDecl {
 /-- The type of a declaration has to be a type, not some other expression -/
 bad_def nonTypeType : constType := unchecked Prop
 
+/-- The type of a theorem has to be a proposition -/
+bad_decl (.thmDecl {
+  name := `nonPropThm
+  levelParams := []
+  type := .sort 0
+  value := .forallE `x (binderInfo := .default) (.sort 0) <| .bvar 0
+})
+
 /-- Some level computation -/
 good_decl (.defnDecl {
     name := `levelComp1
