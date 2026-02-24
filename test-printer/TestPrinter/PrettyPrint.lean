@@ -155,4 +155,33 @@ def ppConstantInfo (ci : ConstantInfo) (width : Nat := 80) : MetaM PrettyDecl :=
     return { kind, name := ci.name,
              levelParams := ci.levelParams, paramsPP, typePP, valuePP }
 
+/-! Note: Column-offset layout via dummy prefix
+
+The `ppExprTaggedW` function prepends N spaces to the Format tree so that
+`prettyTagged` sees the correct column position, then strips them from the
+output. This is the simplest correct approach because:
+
+- `TaggedText.prettyTagged` has an `indent` parameter (initial indentation for
+  continuation lines) but no `column` parameter (current cursor position).
+  `Format.pretty` has both, but `prettyTagged` does not.
+  So there is no way to tell `prettyTagged` "the cursor starts at column N"
+  other than putting N characters of text before the expression.
+
+- Building one Format tree per declaration (with the "kind name : " prefix as
+  real `Format.text`) would give correct layout, but the prefix then appears as
+  untagged `.text` in the `Highlighted` output (no keyword/const coloring),
+  requiring post-processing to strip and re-tokenize it — a similar amount of
+  work, just at a different level.
+
+- The full syntax approach (define a `testDecl` syntax category, delaborate into
+  it, format with `ppCategory`) would avoid stripping entirely, but:
+  (a) `delabConstWithSignature` splits forall binders by name-accessibility
+      heuristics, not by `numParams`, changing output for constructors;
+  (b) definition values are not sub-expressions of `Expr.const`, so combining
+      signature and value in one `delabCore` call requires synthetic wrapper
+      expressions;
+  (c) the added complexity (custom syntax, formatters, position management)
+      is not justified for this use case.
+-/
+
 end TestPrinter
