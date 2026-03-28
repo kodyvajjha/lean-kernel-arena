@@ -567,7 +567,7 @@ def load_yaml_files(directory: Path, schema_name: str) -> list[dict]:
         """Derive a checker version string.
 
         If the checker YAML omits `version` but has both `ref` and `rev`, use
-        "<ref> (<last 7 of rev>)".
+        "<ref> (<first 7 of rev>)".
         """
         version = config.get("version")
         if isinstance(version, str) and version.strip():
@@ -576,7 +576,7 @@ def load_yaml_files(directory: Path, schema_name: str) -> list[dict]:
         ref = config.get("ref")
         rev = config.get("rev")
         if isinstance(ref, str) and ref.strip() and isinstance(rev, str) and rev.strip():
-            rev_short = rev.strip()[-7:]
+            rev_short = rev.strip()[:7]
             return f"{ref.strip()} ({rev_short})"
 
         return None
