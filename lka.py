@@ -1016,9 +1016,9 @@ def create_test(test: dict, output_dir: Path) -> bool:
         if test.get("compare-perf"):
             stats["compare-perf"] = test["compare-perf"]
 
-        # Add large field if present
-        if test.get("large"):
-            stats["large"] = test["large"]
+        # Add skip-on-ci field if present
+        if test.get("skip-on-ci"):
+            stats["skip-on-ci"] = test["skip-on-ci"]
 
         # Generate and store source links
         build_info = get_build_metadata()
@@ -1050,13 +1050,13 @@ def cmd_build_test(args: argparse.Namespace) -> int:
     else:
         tests = load_test_descriptions()
 
-    # Filter out large tests if --no-large flag is set
-    if args.no_large:
+    # Filter out tests marked with skip-on-ci
+    if args.skip_ci:
         original_count = len(tests)
-        tests = [test for test in tests if not test.get("large", False)]
+        tests = [test for test in tests if not test.get("skip-on-ci", False)]
         skipped_count = original_count - len(tests)
         if skipped_count > 0:
-            print(f"Skipping {skipped_count} large test(s) due to --no-large flag")
+            print(f"Skipping {skipped_count} test(s) due to --skip-ci flag")
 
     if not tests:
         print("No tests found.")
@@ -1902,9 +1902,9 @@ def main() -> int:
         help="Name or glob pattern of the test to build (default: all tests)",
     )
     build_test_parser.add_argument(
-        "--no-large",
+        "--skip-ci",
         action="store_true",
-        help="Skip large tests (marked with 'large: true' in YAML)",
+        help="Skip tests marked with 'skip-on-ci: true' in YAML",
     )
 
     # build-checker command

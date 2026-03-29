@@ -15,4 +15,4 @@ pre-build: lake exe cache get
 module: Mathlib
 outcome: accept
 compare-perf: true
-large: true
+skip-on-ci: true

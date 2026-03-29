@@ -61,9 +61,9 @@
       "type": "boolean",
       "description": "Show performance comparison against official checker on index page"
     },
-    "large": {
+    "skip-on-ci": {
       "type": "boolean",
-      "description": "Mark test as large (resource-intensive). Can be skipped with --no-large flag"
+      "description": "Skip this test on CI runs (used with --skip-ci flag)"
     },
     "multiple": {
       "type": "boolean", 

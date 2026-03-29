@@ -13,4 +13,4 @@ description: |
 leanfile: tests/init_module.lean
 outcome: accept
 compare-perf: true
-large: true
+skip-on-ci: true

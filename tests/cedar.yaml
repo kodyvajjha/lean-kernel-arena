@@ -13,4 +13,4 @@ pre-build: |
 module: Cedar
 outcome: accept
 compare-perf: true
-large: true
+skip-on-ci: true
