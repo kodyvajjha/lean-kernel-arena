@@ -57,6 +57,10 @@
       "enum": ["accept", "reject"],
       "description": "Expected test outcome for correctness checking"
     },
+    "compare-perf": {
+      "type": "boolean",
+      "description": "Show performance comparison against official checker on index page"
+    },
     "large": {
       "type": "boolean",
       "description": "Mark test as large (resource-intensive). Can be skipped with --no-large flag"
