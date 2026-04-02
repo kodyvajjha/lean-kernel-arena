@@ -9,7 +9,6 @@ description: |
   `down.{u,v} : Sort (succ (imax u v)) → Sort (imax u v)`, which is used to cast between
   `True` and `False` via `Bool.rec` at `Sort (imax 0 0) = Prop`.
 
-  At the time of writing, nanoda_lib (https://github.com/ammkrn/nanoda_lib) incorrectly
-  accepts this proof.
+  Nanoda incorrectly accepted this proof until it was [fixed](https://github.com/ammkrn/nanoda_lib/commit/12838995ca232ced05cd5218e4975d03c5c44316).
 file: tests/level-imax-leq.ndjson
 outcome: reject

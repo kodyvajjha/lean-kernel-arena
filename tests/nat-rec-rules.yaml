@@ -11,7 +11,6 @@ description: |
   arithmetic for concrete nat literals but falls back to the wrong `Nat.rec` rules for symbolic
   arguments, this creates an inconsistency that yields a proof of False.
 
-  At the time of writing, nanoda_lib (https://github.com/ammkrn/nanoda_lib) incorrectly
-  accepts this proof.
+  Nanoda incorrectly accepted this proof until it was [fixed](https://github.com/ammkrn/nanoda_lib/commit/12838995ca232ced05cd5218e4975d03c5c44316).
 file: tests/nat-rec-rules.ndjson
 outcome: reject
