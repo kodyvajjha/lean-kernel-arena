@@ -117,6 +117,47 @@ good_def imax1 : (p : Prop) → Prop := fun p => Type → p
 /-- Type inference for forall using imax -/
 good_def imax2 : (α : Type) → Type 1 := fun α => Type → α
 
+/--
+Level equality: `max` is commutative (`max u v ≈ max v u`).
+-/
+good_def levelMaxComm.{u, v} : Sort (max v u + 1) := Sort (max u v)
+
+/--
+Level equality: `max` is associative (`max (max u v) w ≈ max u (max v w)`).
+-/
+good_def levelMaxAssoc.{u, v, w} :
+    Sort (max u (max v w) + 1) := Sort (max (max u v) w)
+
+/--
+Level equality: `max` is idempotent (`max u u ≈ u`).
+-/
+good_decl 
+  -- elaboration would simplify it if we just wrote
+  -- def levelMaxIdem : Sort (u + 1) := Sort (max u u)
+  (.defnDecl {
+    name := `levelMaxIdem
+    levelParams := [`u]
+    type := .sort (.succ (.param `u))
+    value := .sort (.max (.param `u) (.param `u)) 
+    hints := .opaque
+    safety := .safe
+  })
+
+/--
+Level equality: `max` absorption (`max u (max u v) ≈ max u v`).
+-/
+good_decl
+  -- elaboration would simplify it if we just wrote
+  -- def maxLevelAbsorb : Sort (max u v + 1) := Sort (max u (max u v))
+  (.defnDecl {
+    name := `levelMaxAbsorb
+    levelParams := [`u, `v]
+    type := .sort (.succ (.max (.param `u) (.param `v)))
+    value := .sort (.max (.param `u) (.max (.param `u) (.param `v)))
+    hints := .opaque
+    safety := .safe
+  })
+
 /-- Type inference of local variables -/
 good_def inferVar : ∀ (f : Prop) (g : f), f := fun f g => g
 
