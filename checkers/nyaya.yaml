@@ -7,4 +7,6 @@ build: |
   export OPAMROOT="$PWD/.opam-root"
   opam init --bare --disable-sandboxing -n
   opam switch create . ocaml-system -y
-run: NYAYA_ARENA=1 ./_opam/bin/nyaya "$IN"
+run: |
+  ulimit -v 1000000 -c 0
+  NYAYA_ARENA=1 timeout 30s ./_opam/bin/nyaya "$IN"
